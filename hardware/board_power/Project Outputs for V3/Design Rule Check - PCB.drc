@@ -1,13 +1,33 @@
 Protel Design System Design Rule Check
 PCB File : D:\code\whell_robot\wheel_robot\hardware\board_power\PCB.PcbDoc
-Date     : 2025/8/18
-Time     : 23:28:58
+Date     : 2025/9/3
+Time     : 23:31:46
 
 Processing Rule : Clearance Constraint (Gap=0.1mm) (All),(All)
-Rule Violations :0
+   Violation between Clearance Constraint: (Collision < 0.1mm) Between Area Fill (23.622mm,59.944mm) (28.575mm,64.516mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer 
+   Violation between Clearance Constraint: (Collision < 0.1mm) Between Area Fill (23.622mm,59.944mm) (28.575mm,64.516mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer 
+   Violation between Clearance Constraint: (Collision < 0.102mm) Between Pad Q4-3(26.564mm,60.325mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer 
+   Violation between Clearance Constraint: (Collision < 0.102mm) Between Pad Q4-3(26.564mm,61.595mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer 
+   Violation between Clearance Constraint: (Collision < 0.102mm) Between Pad Q4-3(26.564mm,62.865mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer 
+   Violation between Clearance Constraint: (Collision < 0.102mm) Between Pad Q4-3(26.564mm,64.135mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer 
+   Violation between Clearance Constraint: (Collision < 0.102mm) Between Pad Q5-3(25.125mm,60.325mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer 
+   Violation between Clearance Constraint: (Collision < 0.102mm) Between Pad Q5-3(25.125mm,61.595mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer 
+   Violation between Clearance Constraint: (Collision < 0.102mm) Between Pad Q5-3(25.125mm,62.865mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer 
+   Violation between Clearance Constraint: (Collision < 0.102mm) Between Pad Q5-3(25.125mm,64.135mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer 
+Rule Violations :10
 
 Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
-Rule Violations :0
+   Violation between Short-Circuit Constraint: Between Area Fill (23.622mm,59.944mm) (28.575mm,64.516mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer Location : [X = 128.994mm][Y = 150.114mm]
+   Violation between Short-Circuit Constraint: Between Area Fill (23.622mm,59.944mm) (28.575mm,64.516mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer Location : [X = 125.407mm][Y = 150.114mm]
+   Violation between Short-Circuit Constraint: Between Pad Q4-3(26.564mm,60.325mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer Location : [X = 128.239mm][Y = 148.209mm]
+   Violation between Short-Circuit Constraint: Between Pad Q4-3(26.564mm,61.595mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer Location : [X = 128.239mm][Y = 149.479mm]
+   Violation between Short-Circuit Constraint: Between Pad Q4-3(26.564mm,62.865mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer Location : [X = 128.239mm][Y = 150.749mm]
+   Violation between Short-Circuit Constraint: Between Pad Q4-3(26.564mm,64.135mm) on Top Layer And Pad Q4-8(28.956mm,62.23mm) on Top Layer Location : [X = 128.239mm][Y = 152.019mm]
+   Violation between Short-Circuit Constraint: Between Pad Q5-3(25.125mm,60.325mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer Location : [X = 125.908mm][Y = 148.209mm]
+   Violation between Short-Circuit Constraint: Between Pad Q5-3(25.125mm,61.595mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer Location : [X = 125.908mm][Y = 149.479mm]
+   Violation between Short-Circuit Constraint: Between Pad Q5-3(25.125mm,62.865mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer Location : [X = 125.908mm][Y = 150.749mm]
+   Violation between Short-Circuit Constraint: Between Pad Q5-3(25.125mm,64.135mm) on Top Layer And Pad Q5-8(22.733mm,62.23mm) on Top Layer Location : [X = 125.908mm][Y = 152.019mm]
+Rule Violations :10
 
 Processing Rule : Un-Routed Net Constraint ( (All) )
 Rule Violations :0
@@ -43,6 +63,6 @@ Processing Rule : Height Constraint (Min=0mm) (Max=25.4mm) (Prefered=12.7mm) (Al
 Rule Violations :0
 
 
-Violations Detected : 0
+Violations Detected : 20
 Waived Violations : 0
 Time Elapsed        : 00:00:01
