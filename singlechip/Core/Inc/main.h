@@ -57,8 +57,9 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LCD0_Pin GPIO_PIN_13
-#define LCD0_GPIO_Port GPIOC
+#define High_band 460800
+#define LED0_Pin GPIO_PIN_13
+#define LED0_GPIO_Port GPIOC
 #define SPI1_CS_Pin GPIO_PIN_5
 #define SPI1_CS_GPIO_Port GPIOC
 #define DRV_EN_Pin GPIO_PIN_7
