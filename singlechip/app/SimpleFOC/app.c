@@ -28,38 +28,38 @@ uint8_t sand_buf[9] = {0};
 
 void simpleFOC_init(void)
 {
-  motor_1.motor_name = MOTOR_1;
+	motor_1.motor_name = MOTOR_1;
 	motor_1.voltage_power_supply=12;   // FOC power
 	motor_1.pole_pairs=7;              // Number of motor poles
 	motor_1.voltage_limit=6;           // Phase voltage limitation
 	motor_1.velocity_limit=20;         //rad/s angleOpenloop() and PID_angle() use it
-	motor_1.voltage_sensor_align=2.5;  // 
+	motor_1.voltage_sensor_align=2.5;  //
 
-  motor_2.motor_name = MOTOR_2;
-  motor_2.voltage_power_supply=12;   // FOC power
+	motor_2.motor_name = MOTOR_2;
+	motor_2.voltage_power_supply=12;   // FOC power
 	motor_2.pole_pairs=7;              // Number of motor poles
 	motor_2.voltage_limit=6;           // Phase voltage limitation
 	motor_2.velocity_limit=20;         //rad/s angleOpenloop() and PID_angle() use it
-	motor_2.voltage_sensor_align=2.5;  // 
+	motor_2.voltage_sensor_align=2.5;  //
 
 	// torque_controller=Type_voltage;  //
 	// controller=Type_velocity;  //Type_angle; //Type_torque;    //
-	
-  MagneticSensor_Init(&motor_1);     //AS5600 or TLE5012B
-  MagneticSensor_Init(&motor_2);     //AS5600 or TLE5012B
+
+	MagneticSensor_Init(&motor_1);     //AS5600 or TLE5012B
+	MagneticSensor_Init(&motor_2);     //AS5600 or TLE5012B
 	Motor_init(&motor_1);
-  Motor_init(&motor_2);
+	Motor_init(&motor_2);
 	Motor_initFOC(&motor_1);
-  Motor_initFOC(&motor_2);
+	Motor_initFOC(&motor_2);
 	PID_init(&motor_1);                //PID init
-  PID_init(&motor_2);                //PID init
-  printf("Motor ready.\r\n");
+	PID_init(&motor_2);                //PID init
+	printf("Motor ready.\r\n");
 }
 
 
 /*******************************************************************************
  * @file   foc.c
- * @brief  接收数据包 
+ * @brief  接收数据包
  * @author Tianxiaogua
  * @date   2024-04
  ******************************************************************************/
@@ -68,7 +68,7 @@ int32_t recv_back_speed(uint8_t *buf, ORDER *recv_order)
 	float motor1_speed = 0;
 	float motor2_speed = 0;
 	/**
-	 * 解析数据协议： 
+	 * 解析数据协议：
 	 * 0  31 数据头
 	 *    第一个电机的参数
 	 * 1  01 01代表正数 02代表负数
@@ -118,7 +118,7 @@ int32_t recv_back_speed(uint8_t *buf, ORDER *recv_order)
 
 /*******************************************************************************
  * @file   foc.c
- * @brief  反馈数据包 
+ * @brief  反馈数据包
  * @author Tianxiaogua
  * @date   2024-04
  ******************************************************************************/
@@ -133,7 +133,7 @@ void sand_back_speed(float speeda , float speedb)
 	uint16_t speed1 = (uint16_t)fabs(speed_M1);
 	uint16_t speed2 = (uint16_t)fabs(speed_M2);
 	/**
-	 * 解析数据协议： 
+	 * 解析数据协议：
 	 * 0  31 数据头
 	 *    第一个电机的参数
 	 * 1  01 01代表正数 02代表负数
@@ -153,7 +153,7 @@ void sand_back_speed(float speeda , float speedb)
 
 	sand_buf[2] = speed1>>8; // 低八位
 	sand_buf[3] = speed1; // 高八位
-	
+
 
 	if(speed_M2 >=0) sand_buf[4] = 0x01;
 	else sand_buf[4] = 0x02;
@@ -179,10 +179,10 @@ void sand_back_speed(float speeda , float speedb)
 void app(void)
 {
 	char str[10];
-	uint8_t recv_buf[10] = {0};	
+	uint8_t recv_buf[10] = {0};
 	float speed_Ma=0;
 	float speed_Mb=0;
-	while(1){
+	while(1) {
 		/**
 		 * @brief Construct a new if object
 		 * 两个串口中断函数用于接收速度控制指令
@@ -200,8 +200,8 @@ void app(void)
 			printf("%d\r\n",i);
 			speed_Ma = i;
       		speed_Mb = -i;
-		} 
-		
+		}
+
 		/**
 		 * @brief Construct a new if object
 		 * 串口2 波特率115200 用于外部通信，用来控制电机的正反转速，可单独控制两个电机
@@ -217,17 +217,18 @@ void app(void)
 				speed_Ma = recv_order.speed_Ma;
 				speed_Mb = recv_order.speed_Mb;
 			}
-		} 
+		}
 		loopFOC(&motor_1, speed_Ma);
 		loopFOC(&motor_2, speed_Mb);
-    sprintf((char*)send_buf, "D:%f,%f,%f,%f,%f,%f\r\n",
-       motor_1.foc.shaft_velocity,
-       motor_1.foc.current_sp,
-       motor_1.foc.shaft_angle ,
-       motor_2.foc.shaft_velocity,
-       motor_2.foc.current_sp,
-       motor_2.foc.shaft_angle );
-    usart_driver_Transmit(send_buf,sizeof(send_buf));
+
+		sprintf((char*)send_buf, "D:%f,%f,%f,%f,%f,%f\r\n",
+			motor_1.foc.shaft_velocity,
+			motor_1.foc.current_sp,
+			motor_1.foc.shaft_angle ,
+			motor_2.foc.shaft_velocity,
+			motor_2.foc.current_sp,
+			motor_2.foc.shaft_angle );
+		usart_driver_Transmit(send_buf,sizeof(send_buf));
 	}
 }
 
@@ -238,17 +239,24 @@ void app_init(void)
 	if(recv != 0){
 		printf("bsp_as5600Init error!!\r\n");
 		bsp_as5600Init();
+		return;
 	}
 	recv = bsp_as5600Init2();
 	if(recv != 0){
 		printf("bsp_as5600Init2 error!!\r\n");
 		bsp_as5600Init2();
+		return;
 	}
-	HAL_GPIO_WritePin(DRV_EN_GPIO_Port, DRV_EN_Pin, GPIO_PIN_SET); // �ߵ�ƽʹ��DCVоƬ
+	HAL_GPIO_WritePin(DRV_EN_GPIO_Port, DRV_EN_Pin, GPIO_PIN_SET); //
 	printf("%.2f %.2f\r\n",get_angle(), get_angle2());
-	
+
 	init_PWM_motor();
-  start_interrupt();
+	start_interrupt();
 	simpleFOC_init();
+	while (1)
+	{
+		/* code */
+	}
+
 	app();
 }

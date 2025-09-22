@@ -18,15 +18,13 @@
  ******************************************************************************/
 void start_interrupt(void)
 {
-	  
+
 #if  FOC_CURRENT_LOOP
   HAL_TIM_Base_Start_IT(&htim7); // main loop interrupt
-  HAL_TIM_Base_Start_IT(&htim1); // gat adc timer   
-  HAL_TIM_Base_Start_IT(&htim5); // main loop interrupt  
-  HAL_TIM_Base_Start_IT(&htim2); // speed feedback 
+  HAL_TIM_Base_Start_IT(&htim1); // gat adc timer
+  HAL_TIM_Base_Start_IT(&htim5); // main loop interrupt
+  HAL_TIM_Base_Start_IT(&htim2); // speed feedback
 #else
-  //HAL_TIM_Base_Start_IT(&htim7); // main loop interrupt
-  //HAL_TIM_Base_Start_IT(&htim5); // main loop interrupt  
   HAL_TIM_Base_Start_IT(&htim2); // speed feedback  20Hz
 #endif
 }
@@ -43,46 +41,20 @@ uint32_t time_flag = 0;
 float history_L_Mspeed = 0;
 float history_R_Mspeed = 0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{  
- if(htim == &htim2)  //
-	{
-   // htim7被设置为500Hz
-    tim_velocity(&motor_1); // 在中断中执行计算速度
-    tim_velocity(&motor_2); // 在中断中执行计算速度
+{
+  if(htim == &htim2)  //
+  {
+    // htim7被设置为500Hz
+    // tim_velocity(&motor_1); // 在中断中执行计算速度
+    // tim_velocity(&motor_2); // 在中断中执行计算速度
     time_flag++;
-    if(time_flag>=500){
+    if(time_flag>=1000){
       time_flag = 0;
-    } 
-	}
- if(htim == &htim2)  //50Hz
-	{
-   // tim5被设置为20Hz 84000000/8400/1000
-   sand_back_speed(get_velocity(&motor_1), get_velocity(&motor_2));
-	}
-//  if(htim == &htim5)  //
-//	{
-//    // tim5被设置为666.66Hz 84000000/8400/30
-//    // 更新到200HZ 84000000/8400/50
-//    speed_loop(); // 速度闭环
-//    speed_PID_L.speed_pi_out = speed_PID_L.tar_speed;
-//    speed_PID_R.speed_pi_out = speed_PID_R.tar_speed;
-//    // position_loop();
-//    sprintf((char*)send_buf, "D:%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n", 
-//    FOC_L.speed,
-//    FOC_L.Park_Id,
-//    speed_PID_L.speed_pi_out,
-//    get_angle_Lmotor_road(), 
-//    FOC_R.speed,
-//    FOC_R.Park_Id,
-//    speed_PID_R.speed_pi_out,
-//    get_angle_Rmotor_road());
-//    usart_driver_Transmit(send_buf,sizeof(send_buf));
-//#if !FOC_CURRENT_LOOP
-//    current_calculate_open(&FOC_L, speed_PID_L.speed_pi_out);
-//	  current_calculate_open(&FOC_R, speed_PID_R.speed_pi_out);
-//#endif
-//	}
-  
+      printf("!!!!!!!!!!.\r\n");
+    }
+    // sand_back_speed(get_velocity(&motor_1), get_velocity(&motor_2)); //50Hz
+
+  }
 }
 
 

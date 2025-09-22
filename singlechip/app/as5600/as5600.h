@@ -4,8 +4,8 @@
 
 #include "i2c.h"
 //#include "STM32bsp.h"
-#define AS5600_I2C_HANDLE hi2c1
-#define AS5600_I2C_HANDLE2 hi2c2
+#define AS5600_I2C_HANDLE hi2c2
+#define AS5600_I2C_HANDLE2 hi2c3
 
 #define I2C_TIME_OUT_BASE   10
 #define I2C_TIME_OUT_BYTE   1
@@ -20,7 +20,7 @@
 #define AS5600_READ_ADDR   ((AS5600_RAW_ADDR << 1) | 1)
 
 
-#define AS5600_RESOLUTION 4096 //12bit Resolution 
+#define AS5600_RESOLUTION 4096 //12bit Resolution
 
 #define AS5600_RAW_ANGLE_REGISTER  0x0C
 

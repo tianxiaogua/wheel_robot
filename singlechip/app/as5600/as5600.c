@@ -20,7 +20,7 @@ static float full_rotation_offset; // 转过的整圈数
 *对IIC底层驱动进行封装
 *
 **/
-static int i2cWrite(I2C_HandleTypeDef *hi2c, uint8_t dev_addr, uint8_t *pData, uint32_t count) 
+static int i2cWrite(I2C_HandleTypeDef *hi2c, uint8_t dev_addr, uint8_t *pData, uint32_t count)
 {
   int status;
   int i2c_time_out = I2C_TIME_OUT_BASE + count * I2C_TIME_OUT_BYTE;
@@ -34,7 +34,7 @@ static int i2cWrite(I2C_HandleTypeDef *hi2c, uint8_t dev_addr, uint8_t *pData, u
 *对IIC底层驱动进行封装
 *
 **/
-static int i2cRead(I2C_HandleTypeDef *hi2c, uint8_t dev_addr, uint8_t *pData, uint32_t count) 
+static int i2cRead(I2C_HandleTypeDef *hi2c, uint8_t dev_addr, uint8_t *pData, uint32_t count)
 {
   int status;
   int i2c_time_out = I2C_TIME_OUT_BASE + count * I2C_TIME_OUT_BYTE;
@@ -48,7 +48,7 @@ static int i2cRead(I2C_HandleTypeDef *hi2c, uint8_t dev_addr, uint8_t *pData, ui
 *初始化as5600 开始时对角度和圈数设置为0
 *
 **/
-uint32_t bsp_as5600Init(void) 
+uint32_t bsp_as5600Init(void)
 {
   /* init i2c interface */
   /* init var */
@@ -61,7 +61,7 @@ uint32_t bsp_as5600Init(void)
   }
 	return 0;
 }
-uint32_t bsp_as5600Init2(void) 
+uint32_t bsp_as5600Init2(void)
 {
   /* init i2c interface */
   /* init var */
@@ -82,24 +82,24 @@ uint32_t bsp_as5600Init2(void)
 *
 **/
 uint8_t as5600buffer[2] = {0};
-uint16_t bsp_as5600GetRawAngle(void) 
+uint16_t bsp_as5600GetRawAngle(void)
 {
   uint16_t raw_angle;
 
   uint8_t raw_angle_register = AS5600_RAW_ANGLE_REGISTER;
-  
+
   i2cWrite(&AS5600_I2C_HANDLE, AS5600_ADDR, &raw_angle_register, 1);
   i2cRead(&AS5600_I2C_HANDLE, AS5600_ADDR, as5600buffer, 2);
   raw_angle = ((uint16_t)as5600buffer[0] << 8) | (uint16_t)as5600buffer[1];
   return raw_angle;
 }
 uint8_t as5600buffer_[2] = {0};
-uint16_t bsp_as5600GetRawAngle2(void) 
+uint16_t bsp_as5600GetRawAngle2(void)
 {
   uint16_t raw_angle;
-  
+
   uint8_t raw_angle_register = AS5600_RAW_ANGLE_REGISTER;
-  
+
   i2cWrite(&AS5600_I2C_HANDLE2, AS5600_ADDR, &raw_angle_register, 1);
   i2cRead(&AS5600_I2C_HANDLE2, AS5600_ADDR, as5600buffer_, 2);
   raw_angle = ((uint16_t)as5600buffer_[0] << 8) | (uint16_t)as5600buffer_[1];
@@ -109,7 +109,7 @@ uint16_t bsp_as5600GetRawAngle2(void)
 
 /**
  * @brief 输出弧度制角度
- * 
+ *
  */
 float radian; // 弧度
 float original_angle;// 原始角度
@@ -119,6 +119,8 @@ float get_angle(void)
   radian = (original_angle / (float)AS5600_RESOLUTION)*_2PI;
   return radian;
 }
+
+
 float radian_2;
 float original_angle_2;// 原始角度
 float get_angle2(void)
@@ -131,10 +133,10 @@ float get_angle2(void)
 /*
 * 读取转过的弧度 通过计算得到当前已经转过的圈数，如果转速过快，采样频率比较低会出现数据丢失，导致计算圈数不正确
 **/
-float bsp_as5600GetAngle(void ) 
+float bsp_as5600GetAngle(void )
 {
 	float rad = 0; // 转过的弧度
-	
+
   float angle_data = original_angle;
   // 跟踪旋转次数
   float d_angle = angle_data - angle_data_prev;
@@ -178,7 +180,7 @@ PARAMETER motorR_para;
 #define _2PI_AS5600 0.0015339807878857f // _2PI / AS5600_RESOLUTION = _2PI_AS5600
 void as5600_resolves_radians(PARAMETER *p_motor)
 {
-  float recv =0; 
+  float recv =0;
   // float angel_radian = p_motor->original_data * _2PI / AS5600_RESOLUTION; // 原始数据转换为弧度制
   p_motor->shaft_angle = p_motor->original_data * _2PI_AS5600; // 原始数据转换为弧度制
 //  recv = _normalizeAngle(( p_motor->shaft_angle - p_motor->zero_electric_angle) * p_motor->motor_pole_pairs);
@@ -193,12 +195,12 @@ void as5600_resolves_radians(PARAMETER *p_motor)
  * @author: tianxiaohua
  * @date: 2024-04
  ******************************************************************************/
-void get_Angle_rotation(PARAMETER *p_motorAngle) 
+void get_Angle_rotation(PARAMETER *p_motorAngle)
 {
 	float rad = 0; // 转过的弧度
-	
+
   float angle_data = p_motorAngle->original_data; // original_angle; 原始角度
-  
+
   float d_angle = angle_data - p_motorAngle->radian_prev; // 跟踪旋转次数
   if(abs(d_angle) > (0.8 * AS5600_RESOLUTION)){
     p_motorAngle->full_rotation_offset += (d_angle > 0 ? -_2PI : _2PI);
@@ -256,13 +258,13 @@ void updata_rotation_parameter(void)
 {
 
 //  motorL_para.original_data = bsp_as5600GetRawAngle(); // 通信获取原始数值
-//  
+//
 //  as5600_resolves_radians(&motorL_para); // 计算得到弧度制的角度
 //  get_Angle_rotation(&motorL_para); // 计算一共转过的角度
 //  updata_shaft_speed(&motorL_para, &kfp); // 更新轴速度
 
 //  motorR_para.original_data = bsp_as5600GetRawAngle2(); // 通信获取原始数值
-//  
+//
 //  as5600_resolves_radians(&motorR_para); // 计算得到弧度制的角度
 //  get_Angle_rotation(&motorR_para); // 计算一共转过的角度
 //  updata_shaft_speed(&motorR_para, &kfp2); // 更新轴速度
