@@ -336,20 +336,15 @@ void USART1_IRQHandler(void)
   uint32_t temp;
 	if((__HAL_UART_GET_FLAG(&huart1,UART_FLAG_IDLE) != RESET))
 	{
-		/*清除状�?�寄存器和串口数据寄存器*/
 		__HAL_UART_CLEAR_IDLEFLAG(&huart1);
 
-		/*失能DMA接收*/
 		HAL_UART_DMAStop(&huart1);
 
-		/*读取接收长度，�?�大�?-剩余大小*/
 		temp = huart1.hdmarx->Instance->CNDTR;
 		Rx_Len = Rx_Max - temp;
 
-		/*接收标志位置1*/
 		Rx_Flag=1;
 
-		/*使能接收DMA接收*/
 		HAL_UART_Receive_DMA(&huart1,Rx_Buf,Rx_Max);
 	}
   /* USER CODE END USART1_IRQn 1 */

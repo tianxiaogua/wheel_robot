@@ -1,7 +1,9 @@
 #ifndef BLDCMotor_H
 #define BLDCMotor_H
-//#include "FOCMotor.h" 
-#include "foc_utils.h" 
+
+#include "foc_utils.h"
+
+
 /******************************************************************************/
 /**
  *  Direction structure
@@ -33,12 +35,12 @@ typedef struct
 {
     /* data */
     /******************************************************************************/
-    float shaft_angle;//!< current motor angle
-    float electrical_angle;
-    float shaft_velocity;
-    float current_sp;
-    float shaft_velocity_sp; // 速度环目标值
-    float shaft_angle_sp;
+    float shaft_angle;        // 电机累计转过的轴角度
+    float electrical_angle;   // 电机电器角度
+    float shaft_velocity;     // 轴速度
+    float current_sp;         // 电流环，速度PID输出
+    float shaft_velocity_sp;  // 速度环目标值
+    float shaft_angle_sp;     //
     DQVoltage_s voltage;
     DQCurrent_s current;
 
@@ -47,6 +49,10 @@ typedef struct
 
     float sensor_offset;
     float zero_electric_angle;
+
+    float Ta;
+    float Tb;
+    float Tc;
     /******************************************************************************/
 }FOC;
 

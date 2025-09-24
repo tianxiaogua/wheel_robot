@@ -42,19 +42,19 @@ float history_L_Mspeed = 0;
 float history_R_Mspeed = 0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  if(htim == &htim2)  //
+  if(htim == &htim2)  // htim2 被设置为1毫秒中断一次
   {
-    // htim7被设置为500Hz
-    // tim_velocity(&motor_1); // 在中断中执行计算速度
-    // tim_velocity(&motor_2); // 在中断中执行计算速度
     time_flag++;
     if(time_flag>=1000){
       time_flag = 0;
-      printf("!!!!!!!!!!.\r\n");
     }
-    // sand_back_speed(get_velocity(&motor_1), get_velocity(&motor_2)); //50Hz
 
+    if (time_flag%20 == 0) { //50Hz
+      sand_back_speed(get_velocity(&motor_1), get_velocity(&motor_2));
+    }
+    if (time_flag%2 == 0) { // 500Hz
+      tim_velocity(&motor_1); // 在中断中执行计算速度
+      tim_velocity(&motor_2); // 在中断中执行计算速度
+    }
   }
 }
-
-

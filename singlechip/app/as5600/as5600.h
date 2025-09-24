@@ -4,15 +4,13 @@
 
 #include "i2c.h"
 //#include "STM32bsp.h"
-#define AS5600_I2C_HANDLE hi2c2
-#define AS5600_I2C_HANDLE2 hi2c3
+#define AS5600_I2C_HANDLE hi2c3
+#define AS5600_I2C_HANDLE2 hi2c2
 
 #define I2C_TIME_OUT_BASE   10
 #define I2C_TIME_OUT_BYTE   1
 
-/*
-ע��:AS5600�ĵ�ַ0x36��ָ����ԭʼ7λ�豸��ַ,��ST I2C���е��豸��ַ��ָԭʼ�豸��ַ����һλ�õ����豸��ַ
-*/
+
 
 #define AS5600_RAW_ADDR    0x36
 #define AS5600_ADDR        (AS5600_RAW_ADDR << 1)

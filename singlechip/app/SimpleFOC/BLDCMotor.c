@@ -34,13 +34,13 @@ int alignSensor(MOTOR_FOC *motor);
 void Motor_init(MOTOR_FOC *motor)
 {
 	printf("MOT: Init\r\n");
-	
+
 //	new_voltage_limit = current_limit * phase_resistance;
 //	voltage_limit = new_voltage_limit < voltage_limit ? new_voltage_limit : voltage_limit;
 	if(motor->voltage_sensor_align > motor->voltage_limit) motor->voltage_sensor_align = motor->voltage_limit;
-	
+
 	motor->sensor_direction=UNKNOWN;
-	
+
 //	M1_Enable;
 	printf("MOT: Enable driver.\r\n");
 }
@@ -48,7 +48,7 @@ void Motor_init(MOTOR_FOC *motor)
 void Motor_initFOC(MOTOR_FOC *motor)
 {
 	alignSensor(motor);    //检测零点偏移量和极对数
-	
+
 	//added the shaft_angle update
 	motor->angle_prev = getAngle(motor);  //getVelocity(),make sure velocity=0 after power on
 	delay_ms(5);
@@ -59,7 +59,7 @@ void Motor_initFOC(MOTOR_FOC *motor)
 
 	// if(controller==Type_angle)
 	// 	target = shaft_angle;//角度模式，以当前的角度为目标角度，进入主循环后电机静止
-	
+
 	delay_ms(200);
 }
 /******************************************************************************/
@@ -69,7 +69,7 @@ int alignSensor(MOTOR_FOC *motor)
 	float angle;
 	float mid_angle,end_angle;
 	float moved;
-	
+
 	printf("MOT: Align sensor.\r\n");
 #if 0
 	// find natural direction
@@ -81,8 +81,8 @@ int alignSensor(MOTOR_FOC *motor)
 		delay_ms(2);
 	}
 	mid_angle=getAngle(motor);
-	
-	for(i=500; i>=0; i--) 
+
+	for(i=500; i>=0; i--)
 	{
 		angle = _3PI_2 + _2PI * i / 500.0 ;
 		setPhaseVoltage(motor, motor->voltage_sensor_align, 0,  angle);
@@ -91,10 +91,10 @@ int alignSensor(MOTOR_FOC *motor)
 	end_angle=getAngle(motor);
 	setPhaseVoltage(motor, 0, 0, 0);
 	delay_ms(200);
-	
+
 	printf("mid_angle=%.4f\r\n",mid_angle);
 	printf("end_angle=%.4f\r\n",end_angle);
-	
+
 	moved =  fabs(mid_angle - end_angle);
 	if((mid_angle == end_angle)||(moved < 0.02))  //相等或者几乎没有动
 	{
@@ -112,8 +112,8 @@ int alignSensor(MOTOR_FOC *motor)
 		printf("MOT: sensor_direction==CW\r\n");
 		motor->sensor_direction=CW;
 	}
-	
-	
+
+
 	printf("MOT: PP check: ");    //计算Pole_Pairs
 	if( fabs(moved * motor->pole_pairs - _2PI) > 0.5 )  // 0.5 is arbitrary number it can be lower or higher!
 	{
@@ -125,7 +125,7 @@ int alignSensor(MOTOR_FOC *motor)
 		printf("OK!\r\n");
 	motor->pole_pairs=  7;
 	printf("pole_pairs:%d\r\n",motor->pole_pairs);
-	
+
 	setPhaseVoltage(motor, motor->voltage_sensor_align, 0,  _3PI_2);  //计算零点偏移角度
 	delay_ms(700);
 	motor->foc.zero_electric_angle = _normalizeAngle(_electricalAngle(motor->sensor_direction*getAngle(motor), motor->pole_pairs));
@@ -136,14 +136,14 @@ int alignSensor(MOTOR_FOC *motor)
 	motor_1.pole_pairs=  7;
 	motor_1.sensor_direction=CW;
 	motor_1.foc.zero_electric_angle = 3.3778;
-	
+
 	motor_2.pole_pairs=  7;
 	motor_2.sensor_direction=CW;
 	motor_2.foc.zero_electric_angle = 2.1783;
 #endif
 	setPhaseVoltage(motor, 0, 0, 0);
 	delay_ms(200);
-	
+
 	return 1;
 }
 /******************************************************************************/
@@ -154,14 +154,14 @@ void loopFOC(MOTOR_FOC *motor, float new_target)
 	motor->foc.shaft_velocity_sp = new_target;
 	// calculate the torque command
 	motor->foc.current_sp = PID_velocity(motor, motor->foc.shaft_velocity_sp - motor->foc.shaft_velocity); // if current/foc_current torque control
-	// if torque controlled through voltage control 
-	
+	// if torque controlled through voltage control
+
 	motor->foc.voltage.q = motor->foc.current_sp;  // use voltage if phase-resistance not provided
 	motor->foc.voltage.d = 0;
 
 	motor->foc.shaft_angle = shaftAngle(motor);// shaft angle
 	motor->foc.electrical_angle = electricalAngle(motor);// electrical angle - need shaftAngle to be called first
-	
+
   	setPhaseVoltage(motor, motor->foc.voltage.q, motor->foc.voltage.d, motor->foc.electrical_angle);
 }
 /******************************************************************************/
@@ -172,8 +172,8 @@ void move(MOTOR_FOC *motor, float new_target)
 	motor->foc.shaft_velocity_sp = new_target;
 	// calculate the torque command
 	motor->foc.current_sp = PID_velocity(motor, motor->foc.shaft_velocity_sp - motor->foc.shaft_velocity); // if current/foc_current torque control
-	// if torque controlled through voltage control 
-	
+	// if torque controlled through voltage control
+
 	motor->foc.voltage.q = motor->foc.current_sp;  // use voltage if phase-resistance not provided
 	motor->foc.voltage.d = 0;
 }
@@ -184,8 +184,8 @@ void setPhaseVoltage(MOTOR_FOC *motor ,float Uq, float Ud, float angle_el)
 	uint32_t sector;
 	float T0,T1,T2;
 	float Ta,Tb,Tc;
-	
-	if(Ud) // only if Ud and Uq set 
+
+	if(Ud) // only if Ud and Uq set
 	{// _sqrt is an approx of sqrt (3-4% error)
 		Uout = _sqrt(Ud*Ud + Uq*Uq) / motor->voltage_power_supply;
 		// angle normalisation in between 0 and 2pi
@@ -201,12 +201,12 @@ void setPhaseVoltage(MOTOR_FOC *motor ,float Uq, float Ud, float angle_el)
 	}
 	if(Uout> 0.577)Uout= 0.577;
 	if(Uout<-0.577)Uout=-0.577;
-	
+
 	sector = (angle_el / _PI_3) + 1;
 	T1 = _SQRT3*_sin(sector*_PI_3 - angle_el) * Uout;
 	T2 = _SQRT3*_sin(angle_el - (sector-1.0)*_PI_3) * Uout;
 	T0 = 1 - T1 - T2;
-	
+
 	// calculate the duty cycles(times)
 	switch(sector)
 	{
@@ -249,13 +249,20 @@ void setPhaseVoltage(MOTOR_FOC *motor ,float Uq, float Ud, float angle_el)
 	Tb = Tb*3600;
 	Tc = Tc*3600;
 	if(motor->motor_name == MOTOR_1){
-		set_pwm_channel_1(Ta);
-		set_pwm_channel_2(Tb);
-		set_pwm_channel_3(Tc);
+		set_pwm_channel_1(Tc);
+		set_pwm_channel_2(Ta);
+		set_pwm_channel_3(Tb);
+
+		motor->foc.Ta = Ta;
+		motor->foc.Tb = Tb;
+		motor->foc.Tc = Tc;
 	}
 	if(motor->motor_name == MOTOR_2){
 		set_pwm_channel_1_2(Ta);
 		set_pwm_channel_2_2(Tb);
 		set_pwm_channel_3_2(Tc);
+		motor->foc.Ta = Ta;
+		motor->foc.Tb = Tb;
+		motor->foc.Tc = Tc;
 	}
 }

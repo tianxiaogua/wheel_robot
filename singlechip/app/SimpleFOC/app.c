@@ -25,6 +25,15 @@
 
 ORDER recv_order;
 uint8_t sand_buf[9] = {0};
+float test_angle = 0;
+void test_motor(void)
+{
+	test_angle += 0.01;
+	if (test_angle >= _2PI) {
+		test_angle = 0;
+	}
+	setPhaseVoltage(&motor_1, 40, 0, test_angle);
+}
 
 void simpleFOC_init(void)
 {
@@ -180,9 +189,12 @@ void app(void)
 {
 	char str[10];
 	uint8_t recv_buf[10] = {0};
-	float speed_Ma=0;
-	float speed_Mb=0;
+	float speed_Ma=-10;
+	float speed_Mb=10;
+
 	while(1) {
+
+
 		/**
 		 * @brief Construct a new if object
 		 * 两个串口中断函数用于接收速度控制指令
@@ -190,44 +202,45 @@ void app(void)
 		 * 串口1 返回数据频率和速度环一致：666.66Hz
 		 * 串口1 使用ASSIC码直接返回字符转，可以使用VOFA调试工具进行查看
 		 */
-		if(Rx_Flag){  // Receive flag
-			Rx_Flag=0;	// clean flag
-			// HAL_UART_Transmit(&huart1, Rx_Buf, Rx_Len, 0xFFFF);
-				for(int i=0; i<Rx_Len; i++){
-				str[i] = Rx_Buf[i];
-			}
-			int i=atoi(str);
-			printf("%d\r\n",i);
-			speed_Ma = i;
-      		speed_Mb = -i;
-		}
+		// if (Rx_Flag) {  // Receive flag
+		// 	Rx_Flag=0;	// clean flag
+		// 	HAL_UART_Transmit(&huart1, Rx_Buf, Rx_Len, 0xFFFF);
+		// 		for(int i=0; i<Rx_Len; i++){
+		// 		str[i] = Rx_Buf[i];
+		// 	}
+		// 	int i=atoi(str);
+		// 	printf("rev: %d\r\n",i);
+		// 	speed_Ma = i;
+      	// 	speed_Mb = -i;
+		// }
 
-		/**
-		 * @brief Construct a new if object
-		 * 串口2 波特率115200 用于外部通信，用来控制电机的正反转速，可单独控制两个电机
-		 * 串口2 按照固定频率40Hz返回转速数据
-		 * 串口2 中断按照40Hz以内的数据接收，对系统干扰比较小
-		 */
-		if(Rx2_Flag){  // Receive flag
-			Rx2_Flag=0;	// clean flag
-			memcpy(recv_buf, Rx2_Buf, Rx2_Len);
-			//HAL_UART_Transmit(&huart2, Rx2_Buf, Rx2_Len, 0xFFFF);
-			int32_t recv = recv_back_speed(recv_buf, &recv_order); // 接受解析指令
-			if(recv != RECV_ERROR){ // 设置速度
-				speed_Ma = recv_order.speed_Ma;
-				speed_Mb = recv_order.speed_Mb;
-			}
-		}
+		// /**
+		//  * @brief Construct a new if object
+		//  * 串口2 波特率115200 用于外部通信，用来控制电机的正反转速，可单独控制两个电机
+		//  * 串口2 按照固定频率40Hz返回转速数据
+		//  * 串口2 中断按照40Hz以内的数据接收，对系统干扰比较小
+		//  */
+		// if(Rx2_Flag){  // Receive flag
+		// 	Rx2_Flag=0;	// clean flag
+		// 	memcpy(recv_buf, Rx2_Buf, Rx2_Len);
+		// 	//HAL_UART_Transmit(&huart2, Rx2_Buf, Rx2_Len, 0xFFFF);
+		// 	int32_t recv = recv_back_speed(recv_buf, &recv_order); // 接受解析指令
+		// 	if(recv != RECV_ERROR){ // 设置速度
+		// 		speed_Ma = recv_order.speed_Ma;
+		// 		speed_Mb = recv_order.speed_Mb;
+		// 	}
+		// }
 		loopFOC(&motor_1, speed_Ma);
 		loopFOC(&motor_2, speed_Mb);
 
 		sprintf((char*)send_buf, "D:%f,%f,%f,%f,%f,%f\r\n",
-			motor_1.foc.shaft_velocity,
-			motor_1.foc.current_sp,
-			motor_1.foc.shaft_angle ,
-			motor_2.foc.shaft_velocity,
-			motor_2.foc.current_sp,
-			motor_2.foc.shaft_angle );
+		motor_1.foc.shaft_velocity,
+		motor_2.foc.shaft_velocity,
+		motor_1.foc.shaft_angle,
+		motor_2.foc.shaft_angle,
+		motor_1.foc.electrical_angle,
+		motor_2.foc.electrical_angle
+		);
 		usart_driver_Transmit(send_buf,sizeof(send_buf));
 	}
 }
@@ -253,10 +266,6 @@ void app_init(void)
 	init_PWM_motor();
 	start_interrupt();
 	simpleFOC_init();
-	while (1)
-	{
-		/* code */
-	}
 
 	app();
 }
