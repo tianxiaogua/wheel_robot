@@ -174,8 +174,7 @@ u8 MPU_Get_Accelerometer(short *ax,short *ay,short *az)
 //    其他,错误代码
 u8 MPU_Write_Len(u8 addr,u8 reg,u8 len,u8 *buf)
 {
-
-	HAL_I2C_Mem_Write(&hi2c1, ((addr<<1)|0), reg, 1, (unsigned char *)buf, len, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Write(&hi2c1, ((addr<<1)|0), reg, 1, (unsigned char *)buf, len, 8);
 	return 0;
 }
 
@@ -190,8 +189,7 @@ u8 MPU_Write_Len(u8 addr,u8 reg,u8 len,u8 *buf)
 //    其他,错误代码
 u8 MPU_Read_Len(u8 addr,u8 reg,u8 len,u8 *buf)
 {
-
-	HAL_I2C_Mem_Read(&hi2c1, ((addr<<1)|1), reg, 1, (unsigned char *)buf, len, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Read(&hi2c1, ((addr<<1)|1), reg, 1, (unsigned char *)buf, len, 8);
 	return 0;
 }
 
@@ -204,8 +202,7 @@ u8 MPU_Read_Len(u8 addr,u8 reg,u8 len,u8 *buf)
 //    其他,错误代码
 u8 MPU_Write_Byte(u8 reg,u8 data)
 {
-
-	HAL_I2C_Mem_Write(&hi2c1, (MPU_ADDR<<1)|0, reg, I2C_MEMADD_SIZE_8BIT, &data, 1, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Write(&hi2c1, (MPU_ADDR<<1)|0, reg, I2C_MEMADD_SIZE_8BIT, &data, 1, 8);
 	return 0;
 }
 
@@ -217,8 +214,7 @@ u8 MPU_Write_Byte(u8 reg,u8 data)
 u8 MPU_Read_Byte(u8 reg)
 {
 	u8 res;
-
-	HAL_I2C_Mem_Read(&hi2c1, (MPU_ADDR<<1)|1, reg, I2C_MEMADD_SIZE_8BIT, &res, 1, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Read(&hi2c1, (MPU_ADDR<<1)|1, reg, I2C_MEMADD_SIZE_8BIT, &res, 1, 8);
 	return res;
 }
 

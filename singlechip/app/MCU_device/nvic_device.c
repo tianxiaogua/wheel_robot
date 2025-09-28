@@ -10,6 +10,23 @@
 #include "BLDCMotor.h"
 #include "MagneticSensor.h"
 #include "app.h"
+
+typedef struct
+{
+  nvic_callback callback_fun;
+} NVIC_CTX;
+
+NVIC_CTX g_nvic_ctx = {0};
+
+void nvic_register_callback(nvic_callback fun)
+{
+  if (fun == NULL) {
+    printf("eeor!\r\n");
+  }
+  g_nvic_ctx.callback_fun = fun;
+}
+
+
 /*******************************************************************************
  * @file   : vnic_device.c
  * @brief  : 启动中断
@@ -44,17 +61,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim == &htim2)  // htim2 被设置为1毫秒中断一次
   {
-    time_flag++;
-    if(time_flag>=1000){
-      time_flag = 0;
-    }
-
-    if (time_flag%20 == 0) { //50Hz
-      sand_back_speed(get_velocity(&motor_1), get_velocity(&motor_2));
-    }
-    if (time_flag%2 == 0) { // 500Hz
-      tim_velocity(&motor_1); // 在中断中执行计算速度
-      tim_velocity(&motor_2); // 在中断中执行计算速度
-    }
+    g_nvic_ctx.callback_fun();
   }
 }

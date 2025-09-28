@@ -17,15 +17,15 @@
 
 typedef struct
 {
-	float speed_Ma; 
-	float speed_Mb; 
+	float speed_Ma;
+	float speed_Mb;
 }ORDER;
 
 void simpleFOC_init(void);
 
 /*******************************************************************************
  * @file   foc.c
- * @brief  接收数据包 
+ * @brief  接收数据包
  * @author Tianxiaogua
  * @date   2024-04
  ******************************************************************************/
@@ -33,12 +33,13 @@ int32_t recv_back_speed(uint8_t *buf, ORDER *recv_order);
 
 /*******************************************************************************
  * @file   foc.c
- * @brief  反馈数据包 
+ * @brief  反馈数据包
  * @author Tianxiaogua
  * @date   2024-04
  ******************************************************************************/
 void sand_back_speed(float speeda , float speedb);
 
+uint8_t get_euler_angle(void);
 
 /*******************************************************************************
  * @file   foc.c

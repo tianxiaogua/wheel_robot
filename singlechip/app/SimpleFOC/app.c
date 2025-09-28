@@ -22,6 +22,35 @@
 #include "stdio.h"
 #include<string.h>
 
+#include "inv_mpu.h"
+#include "inv_mpu_dmp_motion_driver.h"
+#include "mpu6050.h"
+
+#include "Kalman.h"
+
+#include "rc_filter.h"
+
+/*欧拉角euler angle 角度制 0-360°*/
+typedef struct
+{
+	float pitch;
+	float roll;
+	float yaw;
+
+	short gyrox;
+	short gyroy;
+	short gyroz;
+}EULER_ANGLE;
+EULER_ANGLE euler_angle;
+
+typedef struct
+{
+	uint32_t times_falg;
+	int32_t interupt_50hz_flag;
+	int32_t interupt_200hz_flag;
+} TIME_INTERUPT_CTX;
+TIME_INTERUPT_CTX g_time_interupt_ctx = {0};
+
 
 ORDER recv_order;
 uint8_t sand_buf[9] = {0};
@@ -189,11 +218,35 @@ void app(void)
 {
 	char str[10];
 	uint8_t recv_buf[10] = {0};
-	float speed_Ma=-10;
-	float speed_Mb=10;
+	float speed_Ma=10;
+	float speed_Mb=-10;
 
 	while(1) {
 
+		if () {
+
+		}
+		if (g_time_interupt_ctx.interupt_200hz_flag == 1) {
+			g_time_interupt_ctx.interupt_200hz_flag = 0;
+			get_euler_angle();
+			tim_velocity(&motor_1); // 在中断中执行计算速度
+			tim_velocity(&motor_2); // 在中断中执行计算速度
+			continue;
+		}
+
+		loopFOC(&motor_1, speed_Ma);
+		loopFOC(&motor_2, speed_Mb);
+
+		sprintf((char*)send_buf, "D:%f,%f,%f,%f,%f,%f,%f\r\n",
+		euler_angle.gyrox / 16.4 + 1.05,
+		motor_1.foc.shaft_velocity,
+		motor_2.foc.shaft_velocity,
+		motor_1.foc.shaft_angle,
+		motor_2.foc.shaft_angle,
+		motor_1.foc.electrical_angle,
+		motor_2.foc.electrical_angle
+		);
+		usart_driver_Transmit(send_buf,sizeof(send_buf));
 
 		/**
 		 * @brief Construct a new if object
@@ -230,21 +283,40 @@ void app(void)
 		// 		speed_Mb = recv_order.speed_Mb;
 		// 	}
 		// }
-		loopFOC(&motor_1, speed_Ma);
-		loopFOC(&motor_2, speed_Mb);
-
-		sprintf((char*)send_buf, "D:%f,%f,%f,%f,%f,%f\r\n",
-		motor_1.foc.shaft_velocity,
-		motor_2.foc.shaft_velocity,
-		motor_1.foc.shaft_angle,
-		motor_2.foc.shaft_angle,
-		motor_1.foc.electrical_angle,
-		motor_2.foc.electrical_angle
-		);
-		usart_driver_Transmit(send_buf,sizeof(send_buf));
 	}
 }
 
+
+void nvic_200hz_callback(void)
+{
+	g_time_interupt_ctx.times_falg++;
+    if(g_time_interupt_ctx.times_falg>=1000){
+		g_time_interupt_ctx.times_falg = 0;
+    }
+
+	if (g_time_interupt_ctx.times_falg % 5 == 0 || g_time_interupt_ctx.times_falg == 0) { // 200HZ
+		g_time_interupt_ctx.interupt_200hz_flag = 1;
+	}
+
+	if (g_time_interupt_ctx.times_falg % 5 == 0 || g_time_interupt_ctx.times_falg == 0) { // 200HZ
+		g_time_interupt_ctx.interupt_200hz_flag = 1;
+	}
+}
+
+
+uint8_t get_euler_angle(void)
+{
+    // dmp_get_pedometer_step_count(&STEPS); //计步器获取到步数
+    /*陀螺仪获取角度部分*/
+	int recv = mpu_dmp_get_data(&euler_angle.pitch, &euler_angle.roll,	&euler_angle.yaw);
+	// if(	recv != 0) {
+	// 	printf("angle error recv:%d\r\n",recv);
+	// }
+
+	MPU_Get_Gyroscope(&euler_angle.gyrox,&euler_angle.gyroy,&euler_angle.gyroz);	//陀螺仪
+	// printf("D:%f\n", euler_angle.gyrox / 16.4 + 1.05);
+    return recv;
+}
 
 void app_init(void)
 {
@@ -262,6 +334,20 @@ void app_init(void)
 	}
 	HAL_GPIO_WritePin(DRV_EN_GPIO_Port, DRV_EN_Pin, GPIO_PIN_SET); //
 	printf("%.2f %.2f\r\n",get_angle(), get_angle2());
+
+	// 对MPU6050进行测试
+    if(MPU_Init()){ //初始化MPU6050
+        printf("MPU_Init\r\n");
+    }
+
+    while(mpu_dmp_init()) {//初始化 MPU6050的DMP
+        printf("error\r\n");
+        HAL_Delay(10);
+    }
+
+    printf("init mpu 6050 done\r\n");
+
+	nvic_register_callback(nvic_200hz_callback);
 
 	init_PWM_motor();
 	start_interrupt();

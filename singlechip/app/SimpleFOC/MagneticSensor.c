@@ -24,7 +24,7 @@
 //#define  RAW_Angle_Lo    0x0D
 #define  AS5600_CPR      4096
 #define I2C_getRawCount  bsp_as5600GetRawAngle
-#define I2C_getRawCount2  bsp_as5600GetRawAngle2 
+#define I2C_getRawCount2  bsp_as5600GetRawAngle2
 /******************************************************************************/
 
 /******************************************************************************/
@@ -32,10 +32,10 @@ void MagneticSensor_Init(MOTOR_FOC *motor)
 {
 	motor->cpr=AS5600_CPR;
 	if(motor->motor_name == MOTOR_1)
-		motor->angle_data_prev = I2C_getRawCount();  
+		motor->angle_data_prev = I2C_getRawCount();
 	if(motor->motor_name == MOTOR_2)
-		motor->angle_data_prev = I2C_getRawCount2();  
-		
+		motor->angle_data_prev = I2C_getRawCount2();
+
 	motor->full_rotation_offset = 0;
 	motor->velocity_calc_timestamp=0;
 }
@@ -43,22 +43,22 @@ void MagneticSensor_Init(MOTOR_FOC *motor)
 float getAngle(MOTOR_FOC *motor)
 {
 	float angle_data,d_angle;
-	
+
 	if(motor->motor_name == MOTOR_1)
 		angle_data = I2C_getRawCount();
 	if(motor->motor_name == MOTOR_2)
 		angle_data = I2C_getRawCount2();
 
-	// tracking the number of rotations 
+	// tracking the number of rotations
 	// in order to expand angle range form [0,2PI] to basically infinity
 	d_angle = angle_data - motor->angle_data_prev;
 	// if overflow happened track it as full rotation
-	if(fabs(d_angle) > (0.8*motor->cpr) ) motor->full_rotation_offset += d_angle > 0 ? -_2PI : _2PI; 
+	if(fabs(d_angle) > (0.8*motor->cpr) ) motor->full_rotation_offset += d_angle > 0 ? -_2PI : _2PI;
 	// save the current angle value for the next steps
 	// in order to know if overflow happened
 	motor->angle_data_prev = angle_data;
-	// return the full angle 
-	// (number of full rotations)*2PI + current sensor angle 
+	// return the full angle
+	// (number of full rotations)*2PI + current sensor angle
 	return  (motor->full_rotation_offset + ( angle_data / (float)motor->cpr) * _2PI) ;
 }
 /******************************************************************************/
@@ -97,7 +97,7 @@ float get_velocity(MOTOR_FOC *motor)
 void tim_velocity(MOTOR_FOC *motor)
 {
 	float Ts, angle_c, vel;
-	Ts = 0.002; // 500Hz=0.002秒
+	Ts = 0.005; // 200Hz=0.005秒
 
 	// current angle
 	angle_c = getAngle(motor);
