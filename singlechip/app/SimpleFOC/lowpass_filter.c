@@ -33,7 +33,7 @@ float LPF_velocity(float x)
 */
 float LPF_velocity(float x)
 {
-	float y = 0.9*y_vel_prev + 0.1*x;
+	float y = 0.9f * y_vel_prev + 0.1f * x;
 	
 	y_vel_prev=y;
 	
@@ -42,7 +42,7 @@ float LPF_velocity(float x)
 
 float LPF_velocity2(float x)
 {
-	float y = 0.9*y_vel_prev2 + 0.1*x;
+	float y = 0.9f * y_vel_prev2 + 0.1f * x;
 	
 	y_vel_prev2=y;
 	

@@ -37,7 +37,7 @@ typedef struct
     /******************************************************************************/
     float shaft_angle;        // 电机累计转过的轴角度
     float electrical_angle;   // 电机电器角度
-    float shaft_velocity;     // 轴速度
+    float shaft_velocity;     // 轴速度  弧度/S
     float current_sp;         // 电流环，速度PID输出
     float shaft_velocity_sp;  // 速度环目标值
     float shaft_angle_sp;     //

@@ -1,6 +1,6 @@
 #include "usart_device.h"
 
-uint8_t send_buf[100]; // 用于调试，发送串口数据
+uint8_t send_buf[256]; // 用于调试，发送串口数据
 
 int fputc(int ch, FILE *f)
 {
@@ -16,12 +16,12 @@ int fputc(int ch, FILE *f)
 ****************************************************************************/
 void init_usart_interupt()
 {
-	HAL_UART_Receive_DMA(&huart1, Rx_Buf, Rx_Max);  
-	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE); 
-	HAL_UART_Receive_DMA(&huart2, Rx2_Buf, Rx_Max);  
-	__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE); 
-//  HAL_UART_Receive_DMA(&huart3, Rx3_Buf, Rx_Max);  
-// 	__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE); 
+	HAL_UART_Receive_DMA(&huart1, Rx_Buf, Rx_Max);
+	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+	HAL_UART_Receive_DMA(&huart2, Rx2_Buf, Rx_Max);
+	__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);
+//  HAL_UART_Receive_DMA(&huart3, Rx3_Buf, Rx_Max);
+// 	__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
 }
 
 

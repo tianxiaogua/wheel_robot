@@ -4,7 +4,7 @@
 #include "stdio.h"
 #include "usart.h"
 
-extern uint8_t send_buf[100]; // 用于调试，发送串口数据
+extern uint8_t send_buf[256]; // 用于调试，发送串口数据
 
 int fputc(int ch, FILE *f);
 /*****************************************************************************
