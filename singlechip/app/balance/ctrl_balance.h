@@ -16,7 +16,7 @@ void ctrl_balance_update_speed(float speed_left, float speed_right);
 
 void ctrl_balance_speed_out(float *out_Speed);
 
-
+void set_angle(int angle);
 #endif
 
 

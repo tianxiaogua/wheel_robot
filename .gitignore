@@ -4,3 +4,6 @@ hardware/board-foc/V0.5/History
 hardware/board-foc/V0.5/Project Logs for foc_driver-V0.5
 singlechip/MDK-ARM/project
 singlechip/MDK-ARM/project.uvguix.*
+singlechip/MDK-ARM/EventRecorderStub.scvd
+singlechip/.vscode
+singlechip/.vscode/*

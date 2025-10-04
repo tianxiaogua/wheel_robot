@@ -249,18 +249,18 @@ void setPhaseVoltage(MOTOR_FOC *motor ,float Uq, float Ud, float angle_el)
 	Tb = Tb*3600;
 	Tc = Tc*3600;
 	if(motor->motor_name == MOTOR_1){
-		set_pwm_channel_1(Tc);
-		set_pwm_channel_2(Ta);
-		set_pwm_channel_3(Tb);
+		set_pwm_channel_1(Tb);
+		set_pwm_channel_2(Tc);
+		set_pwm_channel_3(Ta);
 
 		motor->foc.Ta = Ta;
 		motor->foc.Tb = Tb;
 		motor->foc.Tc = Tc;
 	}
 	if(motor->motor_name == MOTOR_2){
-		set_pwm_channel_1_2(Ta);
-		set_pwm_channel_2_2(Tb);
-		set_pwm_channel_3_2(Tc);
+		set_pwm_channel_1_2(Tb);
+		set_pwm_channel_2_2(Tc);
+		set_pwm_channel_3_2(Ta);
 		motor->foc.Ta = Ta;
 		motor->foc.Tb = Tb;
 		motor->foc.Tc = Tc;

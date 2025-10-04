@@ -321,7 +321,7 @@
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
-            <Ropi>0</Ropi>
+            <Ropi>1</Ropi>
             <Rwpi>0</Rwpi>
             <wLevel>2</wLevel>
             <uThumb>0</uThumb>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32G431xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include;../app/as5600;../app/MCU_device;../app/SimpleFOC</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include;../app/as5600;../app/MCU_device;../app/SimpleFOC;../app/MPU6050;../app/Kalman;../app/balance</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -718,6 +718,51 @@
               <FileName>pid.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\app\SimpleFOC\pid.h</FilePath>
+            </File>
+            <File>
+              <FileName>kalman.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\Kalman\kalman.c</FilePath>
+            </File>
+            <File>
+              <FileName>rc_filter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\Kalman\rc_filter.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>driver_rmpu</GroupName>
+          <Files>
+            <File>
+              <FileName>inv_mpu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\MPU6050\inv_mpu.c</FilePath>
+            </File>
+            <File>
+              <FileName>inv_mpu_dmp_motion_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\MPU6050\inv_mpu_dmp_motion_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>mpu6050.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\MPU6050\mpu6050.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>balance</GroupName>
+          <Files>
+            <File>
+              <FileName>ctrl_balance.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\balance\ctrl_balance.c</FilePath>
+            </File>
+            <File>
+              <FileName>ctrl_balance_pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\balance\ctrl_balance_pid.c</FilePath>
             </File>
           </Files>
         </Group>

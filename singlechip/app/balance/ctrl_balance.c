@@ -30,7 +30,7 @@ void ctrl_balance_update_speed(float speed_left, float speed_right)
 void ctrl_balance_update_angle(float angle, float gyro)
 {
     balance_ctx.angle = angle;
-    balance_ctx.accelerat = gyro;
+    balance_ctx.accelerat = -gyro;
 }
 
 
@@ -54,14 +54,14 @@ void ctrl_balance_vertical_task(void)
 	}
 
     // 对速度做滤波处理
-	feedback_Speed = KalmanFilter(&kfp1, feedback_Speed);
+	// feedback_Speed = KalmanFilter(&kfp1, feedback_Speed);
 
 	// 判断当前角度与直立状态的机械平衡角度差值在±10°范围内
 	if (fabs(balance_ctx.angle) <= fabs(balance_ctx.target_angle) + 35) {
 
         // 直立环PID 主要使用PD控制
-		vertical_pid_out = pid_vertical(balance_ctx.target_angle, balance_ctx.angle, (- balance_ctx.accelerat / 16.4f + 1.05f));
-        // vertical_pid_out = pid_vertical(balance_ctx.target_angle, balance_ctx.angle, balance_ctx.accelerat);
+		vertical_pid_out = pid_vertical(balance_ctx.target_angle, balance_ctx.angle, balance_ctx.accelerat);
+
         // 速度环
 		speed_pid_out = pid_speed(balance_ctx.target_speed, feedback_Speed);
 
@@ -75,14 +75,14 @@ void ctrl_balance_vertical_task(void)
     sprintf((char*)send_buf, "D:%f,%f,%f,%f,%f,%f,%f,%f\r\n",
     balance_ctx.line_speed_right,
     balance_ctx.line_speed_left,
-    feedback_Speed,
+    balance_ctx.target_angle,
+    balance_ctx.angle,
     vertical_pid_out,
     balance_ctx.target_speed,
-    speed_pid_out,
-    balance_ctx.angle,
-    balance_ctx.target_angle
+    feedback_Speed,
+    speed_pid_out
     );
-    usart_driver_Transmit(send_buf,sizeof(send_buf));
+    usart2_driver_Transmit(send_buf,sizeof(send_buf));
 }
 
 
@@ -91,7 +91,11 @@ void ctrl_balance_init(void)
     Kalman1_Init();
 
     balance_ctx.target_speed = 0;
-    balance_ctx.target_angle = -4.5;
+    balance_ctx.target_angle = -3.5;
 }
 
+void set_angle(int angle)
+{
+    balance_ctx.target_angle = -angle*0.01;
+}
 
