@@ -4,7 +4,6 @@
 #include "stdio.h"
 #include "usart_device.h"
 #include "adc_device.h"
-#include "MyProject.h"
 #include "BLDCMotor.h"
 #include "FOCMotor.h"
 #include "BLDCMotor.h"

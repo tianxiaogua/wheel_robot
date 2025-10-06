@@ -17,6 +17,14 @@
 
 typedef struct
 {
+	unsigned int pwm_a;
+	unsigned int pwm_b;
+	unsigned int pwm_c;
+} APP_BLDC_CTL;
+
+
+typedef struct
+{
 	float speed_Ma;
 	float speed_Mb;
 }ORDER;
@@ -50,4 +58,6 @@ uint8_t get_euler_angle(void);
 void app(void);
 void app_init(void);
 #endif
+
+
 

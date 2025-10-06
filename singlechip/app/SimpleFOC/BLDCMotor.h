@@ -84,20 +84,8 @@ typedef struct
 
 extern MOTOR_FOC motor_1;
 extern MOTOR_FOC motor_2;
-// extern long sensor_direction;
-// extern float voltage_power_supply;
-// extern float voltage_limit;
-// extern float voltage_sensor_align;
-// extern int  pole_pairs;
-// extern unsigned long open_loop_timestamp;
-// extern float velocity_limit;
-/******************************************************************************/
-void Motor_init(MOTOR_FOC *motor);
-void Motor_initFOC(MOTOR_FOC *motor);
-// void loopFOC(MOTOR_FOC *motor);
-void loopFOC(MOTOR_FOC *motor, float new_target);
-void move(MOTOR_FOC *motor, float new_target);
-void setPhaseVoltage(MOTOR_FOC *motor, float Uq, float Ud, float angle_el);
-/******************************************************************************/
+
+void foc_init(MOTOR_FOC *motor);
+void foc_loop_handle(MOTOR_FOC *motor, float target_speed);
 
 #endif

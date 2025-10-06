@@ -1,6 +1,3 @@
-
-
-#include "MyProject.h"
 #include "as5600.h"
 #include "BLDCMotor.h"
 #include "MagneticSensor.h"
@@ -12,7 +9,7 @@
 ************************************************/
 
 
-
+#define Ts  (0.005f) // 200Hz=0.005秒
 #define  AS5600_Address  0x36
 #define  RAW_Angle_Hi    0x0C   //V2.1.1 bugfix
 //#define  RAW_Angle_Lo    0x0D
@@ -111,16 +108,11 @@ float get_velocity(MOTOR_FOC *motor)
 
 void tim_velocity(MOTOR_FOC *motor)
 {
-	float Ts, angle_c, vel;
-	Ts = 0.005; // 200Hz=0.005秒
+	float angle_c = getAngle(motor);
 
-	// current angle
-	angle_c = getAngle(motor);
-	// velocity calculation
-	vel = (angle_c - motor->angle_prev)/Ts;
+	// 计算在单位时间内转过的角度，单位是弧度/s
+	motor->tim_velocity_data = (angle_c - motor->angle_prev) / Ts;
 
-	// save variables for future pass
 	motor->angle_prev = angle_c;
-	motor->tim_velocity_data =  vel;
 }
 

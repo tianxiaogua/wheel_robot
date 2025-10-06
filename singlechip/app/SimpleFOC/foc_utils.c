@@ -1,5 +1,4 @@
 
-#include "MyProject.h"
 #include "foc_utils.h"
 /***************************************************************************/
 // int array instead of float array 

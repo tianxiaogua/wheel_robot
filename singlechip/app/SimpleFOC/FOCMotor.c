@@ -2,17 +2,43 @@
 #include "BLDCmotor.h"
 #include "FOCMotor.h"
 #include "MagneticSensor.h"
-#include "lowpass_filter.h"
 #include "main.h"
 #include "stdio.h"
-// shaft angle calculation
+
+
+float y_vel_prev=0;
+float y_vel_prev2=0;
+
+// 一阶低通滤波器（Low Pass Filter, LPF），专门用来对小车速度信号进行平滑处理。
+float LPF_velocity(float x)
+{
+	float y = 0.9f * y_vel_prev + 0.1f * x;
+
+	y_vel_prev=y;
+
+	return y;
+}
+
+float LPF_velocity2(float x)
+{
+	float y = 0.9f * y_vel_prev2 + 0.1f * x;
+
+	y_vel_prev2=y;
+
+	return y;
+}
+
+
+// 轴角计算
 float shaftAngle(MOTOR_FOC *motor)
 {
   // if no sensor linked return previous value ( for open loop )
   //if(!sensor) return shaft_angle;
   return motor->sensor_direction*getAngle(motor) - motor->foc.sensor_offset;
 }
-// shaft velocity calculation
+
+
+// 轴速计算
 float shaftVelocity(MOTOR_FOC *motor)
 {
   // if no sensor linked return previous value ( for open loop )
@@ -26,11 +52,12 @@ float shaftVelocity(MOTOR_FOC *motor)
 
 
 }
-/******************************************************************************/
+
+
+// 电器角度
 float electricalAngle(MOTOR_FOC *motor)
 {
   return _normalizeAngle((motor->foc.shaft_angle + motor->foc.sensor_offset) * motor->pole_pairs - motor->foc.zero_electric_angle);
 }
-/******************************************************************************/
 
 

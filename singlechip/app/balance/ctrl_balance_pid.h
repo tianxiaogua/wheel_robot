@@ -5,6 +5,8 @@
 #include<stdlib.h>
 #include<math.h>
 
+// #define DEBUG_PID
+
 float pid_vertical(float target, float feedback, float gyro);
 float pid_speed(float target, float feedback);
 

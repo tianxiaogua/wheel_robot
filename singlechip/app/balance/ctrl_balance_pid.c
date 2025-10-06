@@ -1,15 +1,20 @@
 #include "ctrl_balance_pid.h"
 
+#define PID_PARA_KP   (5.00f)
+#define PID_PARA_KD   (0.01f)
+#define PID_PARA_S_KP (2.00f)
+#define PID_PARA_S_KI (0.005f)
+
 #ifdef DEBUG_PID
-float KP    = (5.00f);
-float KD    = (0.01f);
-float S_KP  = (3.52);
-float S_KI  = (0.01);
+float KP    = PID_PARA_KP;
+float KD    = PID_PARA_KD;
+float S_KP  = PID_PARA_S_KP;
+float S_KI  = PID_PARA_S_KI;
 #else
-#define KP    (5.00f)
-#define KD    (0.01f)
-#define S_KP  (3.52)
-#define S_KI  (0.01)
+#define KP    PID_PARA_KP
+#define KD    PID_PARA_KD
+#define S_KP  PID_PARA_S_KP
+#define S_KI  PID_PARA_S_KI
 #endif
 
 float bias_last = 0;

@@ -72,17 +72,17 @@ void ctrl_balance_vertical_task(void)
 		balance_ctx.out_Speed = 0;
 	}
 
-    sprintf((char*)send_buf, "D:%f,%f,%f,%f,%f,%f,%f,%f\r\n",
-    balance_ctx.line_speed_right,
-    balance_ctx.line_speed_left,
-    balance_ctx.target_angle,
-    balance_ctx.angle,
-    vertical_pid_out,
-    balance_ctx.target_speed,
-    feedback_Speed,
-    speed_pid_out
-    );
-    usart2_driver_Transmit(send_buf,sizeof(send_buf));
+    // sprintf((char*)send_buf, "D:%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",
+    // balance_ctx.line_speed_right,
+    // balance_ctx.line_speed_left,
+    // balance_ctx.target_angle,
+    // balance_ctx.angle,
+    // vertical_pid_out,
+    // balance_ctx.target_speed,
+    // feedback_Speed,
+    // speed_pid_out
+    // );
+    // usart2_driver_Transmit(send_buf,sizeof(send_buf));
 }
 
 
@@ -98,4 +98,10 @@ void set_angle(int angle)
 {
     balance_ctx.target_angle = -angle*0.01;
 }
+
+void ctrl_balance_set_speed(int speed)
+{
+    balance_ctx.target_speed = speed;
+}
+
 
