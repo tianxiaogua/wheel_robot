@@ -37,7 +37,7 @@
 
 #define CAR_PARM_WHEEL_RADI   (0.03f) // 车轮半径，单位米
 #define CAR_PARM_WHEEL_RTEAD  (0.12f) // 车轮轮距，单位米
-#define M_PI	              (3.14159265358979323846)
+#define M_PI	              (3.14159265358979323846f)
 
 
 /*欧拉角euler angle 角度制 0-360°*/
@@ -57,6 +57,7 @@ typedef struct
 {
 	uint32_t times_falg;
 	int32_t interupt_200hz_flag;
+	int32_t interupt_20hz_flag;
 } TIME_INTERUPT_CTX;
 TIME_INTERUPT_CTX g_time_interupt_ctx = {0};
 
@@ -220,6 +221,10 @@ static void nvic_200hz_callback(void)
 		tim_velocity(&motor_1);
 		tim_velocity(&motor_2);
 	}
+
+	if (g_time_interupt_ctx.times_falg % 50 == 0 || g_time_interupt_ctx.times_falg == 0) { // 20HZ
+		g_time_interupt_ctx.interupt_20hz_flag = 1;
+	}
 }
 
 
@@ -259,9 +264,11 @@ static int32_t app_bytes_to_int32(const uint8_t dat[4], int big_endian)
     return (int32_t)val; // 直接强制转换为有符号
 }
 
+#define DATA_PARASE_HEAD   ('F')
+#define DATA_PARASE_END    (0x0A)
 
 // 解析数据
-static int app_parse_recv_data(uint8_t *data, uint32_t length, float *line_speed, float *angle_speed)
+static int app_parse_recv_data(uint8_t *data, uint32_t length, int32_t *line_speed, int32_t *angle_speed)
 {
 #ifdef DEBUG_PID
 	unsigned char buf[32] = {0};
@@ -280,53 +287,87 @@ static int app_parse_recv_data(uint8_t *data, uint32_t length, float *line_speed
 #else
 	uint8_t temp_data[4] = {0};
 	int i = 0;
-	uint32_t temp_line_speed = 0;
-	uint32_t temp_angle_speed = 0;
+	int32_t temp_line_speed = 0;
+	int32_t temp_angle_speed = 0;
 	uint8_t data_buf[16] = {0};
-	uint16_t data_len = 0;
-	uint8_t data_sun = 0;
+	uint8_t data_len = 0;
+	int32_t data_sun = 0;
 
 	if (length != 16) {
 		return -1;
 	}
 	memcpy(data_buf, data, length);
 
-	if (data_buf[0] == 0x07 && data_buf[15] == 0x0A) {
+	if (data_buf[0] == DATA_PARASE_HEAD && data_buf[15] == DATA_PARASE_END) {
 		data_len = data_buf[1];
-		for(i=2; i < data_len; i++) {
-			data_sun += data_buf[i]; // 计算校验和
+		for(i=0; i < 8; i++) {
+			data_sun += data_buf[i+2]; // 计算校验和
 		}
-		if(data_sun != data_buf[data_len + 1]) {
+
+		if((uint8_t)data_sun != data_buf[14]) {
+			printf("err![%x] [%x]\r\n", (uint8_t)data_sun, data_buf[14]);
 			return -1;
 		}
 
-		for (i=2; i < 2 + 4; i++) {
+		for (i=0; i < 4; i++) {
 			temp_data[i] = data[i+2];
 		}
-		temp_line_speed = app_bytes_to_int32(temp_data, 0);
-		*line_speed = temp_line_speed * 0.001;
+		*line_speed = app_bytes_to_int32(temp_data, 1);
 
-		for (i=6; i < 6 + 4; i++) {
-			temp_data[i] = data[i];
+		for (i=0; i < 4; i++) {
+			temp_data[i] = data[i+6];
 		}
-		temp_angle_speed = app_bytes_to_int32(temp_data, 0);
-		*angle_speed = temp_angle_speed * 0.001;
-
+		*angle_speed = app_bytes_to_int32(temp_data, 1);
 	}
 #endif
 	return 0;
 }
 
 
+// 发送数据
+static int app_parse_sand_data(uint8_t *data_load, uint8_t length, uint8_t *send_buf, uint16_t *send_buf_len)
+{
+	int i = 0;
+	uint8_t sum_check = 0;
+
+	if (data_load == NULL || send_buf == NULL) {
+		return RECV_ERROR;
+	}
+
+	if (length + 4 > *send_buf_len) {
+		return RECV_ERROR;
+	}
+
+	send_buf[0] = DATA_PARASE_HEAD;
+	send_buf[1] = length;
+
+	for (; i < length; i++) {
+		send_buf[i+2] = data_load[i];
+		sum_check += data_load[i];
+	}
+
+	send_buf[length + 2] = sum_check;
+	send_buf[length + 3] = 0x0D;
+	send_buf[length + 4] = 0x0A;
+	*send_buf_len = strlen((char *)send_buf);
+
+	// printf("check[0X%02x] load len[%d] send_buf_len[%d]\r\n", sum_check, length, *send_buf_len);
+
+	return RECV_OK;
+}
+
 void app(void)
 {
+	int ret = 0;
+	uint16_t send_buf_len = 0;
+	uint8_t data_load[256] = {0};
 	float speed_Ma = 0;
  	float speed_Mb = 0;
 	float out_Speed = 0;
 	float line_speed = 0;
 	float angle_speed = 0;
-	float target_line_speed = 0;
-	float target_angle_speed = 0;
+	int32_t target_line_speed = 0;
+	int32_t target_angle_speed = 0;
 	float target_line_wheel_left = 0;
 	float target_line_wheel_right = 0;
 	// test_motor();
@@ -340,39 +381,64 @@ void app(void)
 #endif
 		if (Rx2_Flag == 1) {
 			Rx2_Flag = 0;
-			app_parse_recv_data(Rx2_Buf, Rx2_Len, &target_line_speed, &target_angle_speed); // 解析接收到的数据
 
-			app_diff_drive_calc_wheel_vel(target_line_speed, target_angle_speed, CAR_PARM_WHEEL_RTEAD,
+			app_parse_recv_data(Rx2_Buf, Rx2_Len, &target_line_speed, &target_angle_speed); // 解析接收到的数据
+			float line_speed = target_line_speed*0.0001f;
+			float angle_speed = target_angle_speed*0.001f;
+			app_diff_drive_calc_wheel_vel(line_speed, angle_speed, CAR_PARM_WHEEL_RTEAD,
 			&target_line_wheel_left, &target_line_wheel_right);
 
-			ctrl_balance_set_speed(target_line_speed);
+			ctrl_balance_set_speed(line_speed);
+			// printf("D:%f,%f,%.1f,%.1f,%.1f,%.1f,%.1f\r\n", line_speed, angle_speed, target_line_wheel_left, target_line_wheel_right, out_Speed, speed_Ma, speed_Mb);
 		}
 
-		get_euler_angle();
-		ctrl_balance_update_speed(motor_1.foc.shaft_velocity, -motor_2.foc.shaft_velocity);
-		ctrl_balance_update_angle(euler_angle.pitch, euler_angle.gyroy);
-		ctrl_balance_vertical_task();
-		ctrl_balance_speed_out(&out_Speed);
-		speed_Ma = out_Speed + target_line_wheel_left;
-		speed_Mb = -out_Speed - target_line_wheel_right;
 
-		foc_loop_handle(&motor_1, speed_Ma);
-		foc_loop_handle(&motor_2, speed_Mb);
+		if (g_time_interupt_ctx.interupt_200hz_flag == 1) {
+			g_time_interupt_ctx.interupt_200hz_flag = 0;
 
-		app_calc_robot_velocity(motor_1.foc.shaft_velocity, -motor_2.foc.shaft_velocity,
-		CAR_PARM_WHEEL_RADI, CAR_PARM_WHEEL_RTEAD,
-		&line_speed, &angle_speed);
+			// 读取陀螺仪
+			get_euler_angle();
 
-		sprintf((char*)send_buf, "D:%d,%d,%d,%d,%d,%d,%d\r\n",
-		(int)(1000 * line_speed),
-		(int)(angle_speed),
-		(int)(1000* app_wheel_angular_to_linear(motor_1.foc.shaft_angle, CAR_PARM_WHEEL_RADI)),
-		(int)(1000* app_wheel_angular_to_linear(motor_2.foc.shaft_angle, CAR_PARM_WHEEL_RADI)),
-		(int)euler_angle.pitch,
-		(int)euler_angle.roll,
-		(int)euler_angle.yaw
-		);
-		usart2_driver_Transmit(send_buf,sizeof(send_buf));
+			ctrl_balance_update_speed(motor_1.foc.shaft_velocity, -motor_2.foc.shaft_velocity);
+			ctrl_balance_update_angle(euler_angle.pitch, euler_angle.gyroy);
+
+			ctrl_balance_vertical_task();
+			ctrl_balance_speed_out(&out_Speed);
+			speed_Ma = out_Speed + target_line_wheel_left;
+			speed_Mb = -out_Speed - target_line_wheel_right;
+
+			foc_loop_handle(&motor_1, speed_Ma);
+			foc_loop_handle(&motor_2, speed_Mb);
+
+			app_calc_robot_velocity(motor_1.foc.shaft_velocity, -motor_2.foc.shaft_velocity,
+			CAR_PARM_WHEEL_RADI, CAR_PARM_WHEEL_RTEAD,
+			&line_speed, &angle_speed);
+		}
+
+		if (g_time_interupt_ctx.interupt_20hz_flag == 1) {
+			g_time_interupt_ctx.interupt_20hz_flag = 0;
+			memset(data_load, 0, 256);
+			memset(send_buf, 0, 256);
+			sprintf((char*)data_load, "{\"A\":%d,\"B\":%d,\"C\":%d,\"D\":%d,\"E\":%d,\"F\":%d,\"G\":%d}",
+			(int)(1000 * line_speed),
+			(int)(angle_speed),
+			(int)(1000* app_wheel_angular_to_linear(motor_1.foc.shaft_angle, CAR_PARM_WHEEL_RADI)),
+			(int)(1000* app_wheel_angular_to_linear(motor_2.foc.shaft_angle, CAR_PARM_WHEEL_RADI)),
+ 			(int)euler_angle.pitch,
+			(int)euler_angle.roll,
+			(int)euler_angle.yaw
+			);
+
+			send_buf_len = 256;
+			ret = app_parse_sand_data(data_load, strlen((char*)data_load), send_buf, &send_buf_len);
+			if (ret == RECV_OK) {
+				usart2_driver_Transmit(send_buf, send_buf_len);
+			} else {
+
+			}
+		}
+
+
 #ifdef DEBUG_PID
 		sprintf((char*)send_buf, "D:%f,%f,%f,%f,%f,%f,%f,%f\r\n",
 		(float)euler_angle.gyroy,
